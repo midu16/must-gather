@@ -9,7 +9,7 @@ mkdir -p "${MACHINECONFIG_DAEMON_LOG_PATH}"/
 function gather_machineconfigdaemon_termination_logs {
      
     echo "INFO: Gathering machine config daemon's old logs from all nodes"
-    NODES=$(oc get nodes -o jsonpath='{.items[?(@.kind=="Node")].metadata.name}')
+    NODES="${*:-$(linux_nodes=($(oc get nodes -o jsonpath='{.items[?(@.status.nodeInfo.operatingSystem=="linux")].metadata.name}' | tr ' ' '\n')); tainted_nodes=($(oc get nodes -o jsonpath='{range .items[?(@.spec.taints)]}{.metadata.name}{"\t"}{.spec.taints[*].key}{"\t"}{.spec.taints[*].effect}{"\n"}{end}' | awk -F'\t' '$2 ~ /node.kubernetes.io\/unreachable/ && $3 ~ /NoExecute/ && $3 ~ /NoSchedule/ {print $1}')); for node in "${linux_nodes[@]}"; do if [[ ! " ${tainted_nodes[@]} " =~ " ${node} " ]]; then if oc get --raw /api/v1/nodes/$node/proxy/healthz 2>&1 | grep -q "ok"; then echo $node; fi; fi; done)}"
     for NODE in ${NODES}; do
          # use the existing MCD pod on the node to get the files
          DAEMONPOD=$(oc get pods -n openshift-machine-config-operator --field-selector spec.nodeName=${NODE} --selector k8s-app=machine-config-daemon -o custom-columns=:metadata.name --no-headers)
