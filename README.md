@@ -18,6 +18,12 @@ Use `-h` flag to see available options.
 ## How to test
 Build a new must-gather image with your changes using the Makefile. There are two options in the Makefile, `make` will use imagebuilder to build the image while `make BUILDER=podman` will use podman to build the image.
 
+> [!WARNING]
+> Before starting the building process, ensure to export the following variable :
+> 
+>  `export GO_BUILD_PACKAGES_EXPANDED=$(go list ./...)`.
+
+
 If using `make BUILDER=podman`, please set the `AUTH_FILE` parameter pointing to an authentication file that has credentials for the `registry.ci.openshift.org` registry. Ensure that you are connected to the VPN before building the image.
 ```
 make BUILDER=podman AUTH_FILE=/path/to/authfile
