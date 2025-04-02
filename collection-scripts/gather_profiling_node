@@ -126,7 +126,7 @@ NODES="${@}"
 if [ -z "$NODES" ]; then
     echo -e "\nWARNING: since no nodes have been specified for the profiling task, data will\n"\
             "be collected on ALL the nodes in the cluster. This may take quite some time.\n"
-    NODES="$(oc get nodes -o jsonpath='{.items[?(@.kind=="Node")].metadata.name}')"
+    NODES="${*:-$(linux_nodes=($(oc get nodes -o jsonpath='{.items[?(@.status.nodeInfo.operatingSystem=="linux")].metadata.name}' | tr ' ' '\n')); tainted_nodes=($(oc get nodes -o jsonpath='{range .items[?(@.spec.taints)]}{.metadata.name}{"\t"}{.spec.taints[*].key}{"\t"}{.spec.taints[*].effect}{"\n"}{end}' | awk -F'\t' '$2 ~ /node.kubernetes.io\/unreachable/ && $3 ~ /NoExecute/ && $3 ~ /NoSchedule/ {print $1}')); for node in "${linux_nodes[@]}"; do if [[ ! " ${tainted_nodes[@]} " =~ " ${node} " ]]; then if oc get --raw /api/v1/nodes/$node/proxy/healthz 2>&1 | grep -q "ok"; then echo $node; fi; fi; done)}"
 fi
 
 DO_PROF_CRIO=true

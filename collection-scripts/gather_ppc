@@ -128,24 +128,15 @@ spec:
         hostPath:
           path: /var/lib/kubelet/pod-resources
           type: Directory
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: node.kubernetes.io/ready
-                operator: In
-                values:
-                - "true"
       tolerations: 
-        - key: "node.kubernetes.io/not-ready"
-          operator: "Exists"
-          effect: "NoExecute"
-          tolerationSeconds: 300
         - key: "node.kubernetes.io/unreachable"
-          operator: "Exists"
           effect: "NoExecute"
-          tolerationSeconds: 300
+          operator: "Exists"
+          tolerationSeconds: 0
+        - key: "node.kubernetes.io/not-ready"
+          effect: "NoExecute"
+          operator: "Exists"
+          tolerationSeconds: 0
 EOF
 
   COUNTER=0

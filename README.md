@@ -39,5 +39,8 @@ To test your new changes with a cluster, run the following:
 oc adm must-gather --image=registry/username/your-built-image
 ```
 
+> [!WARNING]
+> In any failure case, use `--debug=v` for more log verbosity.
+
 ## Obfuscate confidential information
 There is a dedicated effort to obfuscate and omit confidential information. Head over to [openshift/must-gather-clean](https://github.com/openshift/must-gather-clean) for more information.
